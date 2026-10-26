@@ -155,11 +155,34 @@ tfoot td{font-weight:700;border-bottom:0}
 .pk-row small{display:block;color:var(--muted);font-size:11.5px}
 .empty{color:var(--muted);font-size:13.5px;padding:22px 0;text-align:center}
 
+/* trends */
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 16px}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13px;font-weight:600;padding:7px 13px;border-radius:20px;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+.tr-ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:12px}
+.rng{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.rng select{font:inherit;font-size:13.5px;font-weight:600;color:var(--ink);background:var(--soft);border:0;border-radius:10px;padding:7px 10px}
+.seg{display:flex;gap:2px;background:var(--soft);border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--muted);font-size:12.5px;font-weight:600;padding:6px 10px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:var(--shadow)}
+.ytd{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:900px){.ytd{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.chart-box.big{height:300px}
+@media (min-width:900px){.chart-box.big{height:380px}}
+.heat{border-collapse:separate;border-spacing:3px;min-width:720px;font-size:12.5px}
+.heat th,.heat td{border:0;padding:8px 6px;text-align:center}
+.heat th:first-child,.heat td:first-child{text-align:left;background:var(--panel)}
+.heat td.c{border-radius:8px;font-weight:600;cursor:pointer}
+.heat td.c.sel{outline:2px solid var(--ink);outline-offset:-2px}
+.heat td.na{color:var(--muted);background:var(--soft);border-radius:8px}
+.heat tr.tot td{font-weight:700}
+
 /* bottom nav / side rail */
-.nav{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--bar);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--bar);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
 .nav a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border-radius:14px;color:var(--muted);text-decoration:none;font-size:11.5px;font-weight:600}
 .nav a svg{width:23px;height:23px}
-.nav a .pill{display:grid;place-items:center;width:56px;height:30px;border-radius:16px;transition:background .2s}
+.nav a .pill{display:grid;place-items:center;width:52px;height:30px;border-radius:16px;transition:background .2s}
 .nav a[aria-current="page"]{color:var(--ink)}
 .nav a[aria-current="page"] .pill{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)}
 @media (min-width:900px){
@@ -193,16 +216,16 @@ tfoot td{font-weight:700;border-bottom:0}
     <section class="screen" id="s-overview">
       <div class="cols">
         <div class="hero">
-          <div class="lbl">Achievement against target</div>
+          <div class="lbl">Revenue against target</div>
           <div class="hero-total"><span class="big" id="hAch"></span><span class="cur">EGP</span></div>
           <div class="of" id="hOf"></div>
           <div id="tracks"></div>
         </div>
         <div class="card">
-          <h3>Monthly achievement</h3>
-          <p class="hint">Bars are achievement, the line is achievement % of target. Tap a month to select it.</p>
+          <h3>Monthly revenue</h3>
+          <p class="hint">Bars are revenue, the line is revenue as a % of target. Tap a month to select it.</p>
           <div class="legend" id="trendLegend"></div>
-          <div class="chart-box"><canvas id="cTrend" aria-label="Monthly achievement chart"></canvas></div>
+          <div class="chart-box"><canvas id="cTrend" aria-label="Monthly revenue chart"></canvas></div>
         </div>
       </div>
       <div class="sec-h"><h2>Month at a glance</h2><span id="kHint"></span></div>
@@ -214,7 +237,7 @@ tfoot td{font-weight:700;border-bottom:0}
       <p class="range" id="cpcHint"></p>
       <div class="cpc" id="cpc"></div>
       <div class="cols">
-        <div class="card"><h3>Ambulatory (OPD)</h3><p class="hint" id="cpcLeg">Charge per case by month</p><div class="chart-box"><canvas id="cCpcOpd" aria-label="Ambulatory charge per case chart"></canvas></div></div>
+        <div class="card"><h3>Ambulatory</h3><p class="hint" id="cpcLeg">Charge per case by month</p><div class="chart-box"><canvas id="cCpcOpd" aria-label="Ambulatory charge per case chart"></canvas></div></div>
         <div class="card"><h3>Inpatient (INP)</h3><p class="hint">Charge per case by month</p><div class="chart-box"><canvas id="cCpcInp" aria-label="Inpatient charge per case chart"></canvas></div></div>
       </div>
     </section>
@@ -242,9 +265,30 @@ tfoot td{font-weight:700;border-bottom:0}
       </div>
       <div class="cols">
         <div class="card"><h3>Weekly revenue</h3><p class="hint" id="wkHint"></p><div class="chart-box"><canvas id="cWeek" aria-label="Weekly revenue chart"></canvas></div></div>
-        <div class="card"><h3>Inpatient packages</h3><p class="hint">Pharmacy charge by package, with cases and charge per case.</p><div id="pk"></div></div>
-        <div class="card"><h3>Medicine and supplies</h3><p class="hint">Split of achievement by category, January to August.</p><div class="chart-box"><canvas id="cMix" aria-label="Medicine and supplies chart"></canvas></div></div>
+        <div class="card"><h3>Inpatient packages</h3><p class="hint">Pharmacy revenue by package, with cases and charge per case.</p><div id="pk"></div></div>
+        <div class="card"><h3>Medicine and supplies</h3><p class="hint">Split of revenue by category, January to August.</p><div class="chart-box"><canvas id="cMix" aria-label="Medicine and supplies chart"></canvas></div></div>
         <div class="card"><h3>Pharmacy utilization rate</h3><p class="hint">Share of cases that used the pharmacy.</p><div class="chart-box"><canvas id="cConv" aria-label="Utilization rate chart"></canvas></div></div>
+      </div>
+    </section>
+    <!-- Trends -->
+    <section class="screen" id="s-trends" hidden>
+      <div class="card">
+        <h3>Year trends</h3>
+        <p class="hint" id="trHint">Pick what to follow across the year. Tap a month to open it.</p>
+        <div class="chips" id="trMetric" role="group" aria-label="Measure"></div>
+        <div class="tr-ctl">
+          <div class="rng"><label for="trFrom">From</label><select id="trFrom"></select><label for="trTo">to</label><select id="trTo"></select></div>
+          <div class="seg" id="trMode" role="group" aria-label="Chart type"><button data-v="line">Lines</button><button data-v="bar">Bars</button></div>
+        </div>
+        <div class="legend" id="trLeg" style="margin-top:12px"></div>
+        <div class="chart-box big"><canvas id="cYear" aria-label="Year trend chart"></canvas></div>
+      </div>
+      <div class="sec-h"><h2 id="ytdTitle">Year to date</h2><span id="ytdNote"></span></div>
+      <dl class="ytd" id="ytd"></dl>
+      <div class="card">
+        <h3>Month by month</h3>
+        <p class="hint" id="heatHint"></p>
+        <div class="tbl-wrap"><table class="heat" id="heat"></table></div>
       </div>
     </section>
   </main>
@@ -254,6 +298,7 @@ tfoot td{font-weight:700;border-bottom:0}
     <a href="#cpc" data-t="cpc"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="3"/><circle cx="12" cy="12" r="2.5"/></svg></span>Per case</a>
     <a href="#share" data-t="share"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3v9h9a9 9 0 1 1-9-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg></span>Share</a>
     <a href="#branches" data-t="branches"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Branches</a>
+  <a href="#trends" data-t="trends"><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>Trends</a>
   </nav>
 </div>
 
@@ -267,8 +312,8 @@ let MONTHS=M_ALL.slice(0,10);
 const BR=["Alex","New Cairo","Mohandessen"];
 const BVAR={"Alex":"--alex","New Cairo":"--cairo","Mohandessen":"--moh"};
 const state={m:10,b:"All",tab:"overview"};
-const TABS=["overview","cpc","share","branches"];
-try{const h=location.hash.slice(1); if(TABS.includes(h)) state.tab=h;}catch(e){}
+const TABS=["overview","cpc","share","branches","trends"];
+let userPickedMonth=false, firstPaint=true;
 
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const fmt=n=>n==null?"—":Math.round(n).toLocaleString("en-US");
@@ -321,13 +366,13 @@ function agg(m,list){
 const mEl=document.getElementById("months");
 function buildMonths(){
   mEl.innerHTML="";
-  MONTHS.forEach((n,i)=>{const b=document.createElement("button");b.textContent=n;b.dataset.m=i+1;b.onclick=()=>{state.m=i+1;render()};mEl.appendChild(b)});
+  MONTHS.forEach((n,i)=>{const b=document.createElement("button");b.textContent=n;b.dataset.m=i+1;b.onclick=()=>{state.m=i+1;userPickedMonth=true;render()};mEl.appendChild(b)});
 }
 const bEl=document.getElementById("branches");
 ["All",...BR].forEach(n=>{const b=document.createElement("button");b.innerHTML=n==="All"?"All":`<span class="dot" style="background:var(${BVAR[n]})"></span>${n}`;b.dataset.b=n;b.onclick=()=>{state.b=n;render()};bEl.appendChild(b)});
 
 let charts={};
-function mk(id,cfg){ if(charts[id]) charts[id].destroy(); charts[id]=new Chart(document.getElementById(id),cfg); }
+function mk(id,cfg){ if(charts[id]) charts[id].destroy(); if(!firstPaint){cfg.options=cfg.options||{};cfg.options.animation=false;} charts[id]=new Chart(document.getElementById(id),cfg); }
 function baseOpts(){
   const ink=css("--muted"), grid=css("--line");
   Chart.defaults.font.family='"IBM Plex Sans",system-ui,sans-serif'; Chart.defaults.font.size=12; Chart.defaults.color=ink;
@@ -342,7 +387,7 @@ function render(){
   document.querySelectorAll("#branches button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.b===state.b));
   const m=state.m, list=sel(m), A=agg(m,list);
   document.getElementById("pTitle").textContent=`${MFULL[m-1]} 2026`+(state.b==="All"?"":` · ${state.b}`);
-  const act=document.querySelector(`#months button[data-m="${m}"]`); if(act) act.scrollIntoView({block:"nearest",inline:"center"});
+  const act=document.querySelector(`#months button[data-m="${m}"]`); if(act) mEl.scrollLeft=act.offsetLeft-mEl.clientWidth/2+act.offsetWidth/2;
   document.getElementById("pRange").textContent=range(m);
   const flag=document.getElementById("pFlag");
   flag.hidden=!isPartial(m); flag.textContent="Partial month";
@@ -361,10 +406,10 @@ function render(){
       const r=row(b,m), q=pct(r.ach,r.mtd), dim=state.b!=="All"&&state.b!==b;
       const d=document.createElement("div"); d.className="track"+(dim?" is-dim":"");
       d.innerHTML=`<div><div class="name"><span class="dot" style="background:var(${BVAR[b]})"></span>${b}</div><div class="nums">${fmtM(r.ach)} / ${fmtM(r.mtd)}</div></div>
-        <div class="bar" title="${b}: ${fmt(r.ach)} of ${fmt(r.mtd)}"><div class="fill" style="width:0;background:var(${BVAR[b]})"></div><div class="tgt" style="left:${r.mtd/mx*100}%"></div></div>
+        <div class="bar" title="${b}: ${fmt(r.ach)} of ${fmt(r.mtd)}"><div class="fill" style="width:${firstPaint?0:r.ach/mx*100}%;background:var(${BVAR[b]})"></div><div class="tgt" style="left:${r.mtd/mx*100}%"></div></div>
         <div class="pct ${cls(q)}">${fp(q)}</div>`;
       tr.appendChild(d);
-      requestAnimationFrame(()=>{d.querySelector(".fill").style.width=(r.ach/mx*100)+"%"});
+      if(firstPaint) requestAnimationFrame(()=>{d.querySelector(".fill").style.width=(r.ach/mx*100)+"%"});
     });
   }
 
@@ -388,19 +433,20 @@ function render(){
     items.forEach(([t,v,n])=>{const div=document.createElement("div");div.className="kpi";div.innerHTML=`<dt>${t}</dt><dd>${v}<div class="note">${n}</div></dd>`;k.appendChild(div)});
   } else k.innerHTML=`<div class="empty">No data for this selection.</div>`;
 
-  drawTrend(); drawCpc(); drawContrib(); drawShare(); drawWeek(A); drawPk(A); drawMix(); drawConv(); drawTable();
+  drawTrend(); drawTrends(); drawCpc(); drawContrib(); drawShare(); drawWeek(A); drawPk(A); drawMix(); drawConv(); drawTable();
+  syncURL(false);
 }
 
 function drawTrend(){
   const o=baseOpts(), ms=MONTHS.map((_,i)=>i+1);
   const shown=state.b==="All"?BR:[state.b];
   const ds=shown.map(b=>({type:"bar",label:b,data:ms.map(m=>{const r=row(b,m);return r?r.ach:null}),backgroundColor:ms.map(m=>m===state.m?css(BVAR[b]):css(BVAR[b])+"99"),stack:"s",borderRadius:2,maxBarThickness:44}));
-  ds.push({type:"line",label:"Achievement %",yAxisID:"p",data:ms.map(m=>{const a=agg(m,sel(m));return a&&a.mtd?a.ach/a.mtd:null}),borderColor:css("--ink"),backgroundColor:css("--ink"),pointRadius:ms.map(m=>m===state.m?5:3),borderWidth:2,tension:.25,spanGaps:true});
+  ds.push({type:"line",label:"% of target",yAxisID:"p",data:ms.map(m=>{const a=agg(m,sel(m));return a&&a.mtd?a.ach/a.mtd:null}),borderColor:css("--ink"),backgroundColor:css("--ink"),pointRadius:ms.map(m=>m===state.m?5:3),borderWidth:2,tension:.25,spanGaps:true});
   o.scales.y.stacked=true; o.scales.x.stacked=true;
   o.scales.p={position:"right",min:0,max:1.4,grid:{display:false},border:{display:false},ticks:{callback:v=>Math.round(v*100)+"%"}};
   o.onClick=(e,el)=>{ if(el.length){state.m=el[0].index+1;render();} };
   mk("cTrend",{data:{labels:MONTHS,datasets:ds},options:o});
-  document.getElementById("trendLegend").innerHTML=shown.map(b=>`<span><span class="dot" style="background:var(${BVAR[b]})"></span>${b}</span>`).join("")+`<span><span class="dot" style="background:var(--ink)"></span>Achievement %</span>`;
+  document.getElementById("trendLegend").innerHTML=shown.map(b=>`<span><span class="dot" style="background:var(${BVAR[b]})"></span>${b}</span>`).join("")+`<span><span class="dot" style="background:var(--ink)"></span>% of target</span>`;
 }
 function drawContrib(){
   const o=baseOpts(), ms=MONTHS.map((_,i)=>i+1), L=viewList();
@@ -427,7 +473,7 @@ function drawCpc(){
     const br=state.b==="All"?`<div class="cpc-br">${BR.map(b=>{const x=cpcOf(m,[b],k);return x?`<div><span><span class="dot" style="background:var(${BVAR[b]})"></span>${b}</span><b>${fmt(x.x)}</b></div>`:""}).join("")}</div>`:"";
     return `<div class="cpc-card" style="--c:${color}"><h4>${title}</h4><div class="v">${fmt(a.x)}<small>EGP</small></div><div class="n">${fmt(a.v)} over ${fmt(a.c)} cases${g==null?"":` · <span class="${g>=0?"good":"bad"}">${g>=0?"+":""}${Math.round(g*100)}%</span> vs last month`}</div>${br}</div>`;
   };
-  el.innerHTML=card("Ambulatory (OPD)","opd","var(--orange)")+card("Inpatient (INP)","inp","var(--ink)");
+  el.innerHTML=card("Ambulatory","opd","var(--orange)")+card("Inpatient","inp","var(--ink)");
   document.getElementById("cpcHint").textContent=`${viewName()} in ${MFULL[m-1]}: pharmacy revenue divided by patients served.`;
   const L2=state.b==="All"?BR:[state.b];
   const mkLine=(id,k,label)=>{const o=baseOpts();o.scales.y.ticks={callback:v=>fmt(v)};
@@ -438,6 +484,88 @@ function drawCpc(){
   mkLine("cCpcOpd","opd"); mkLine("cCpcInp","inp");
   document.getElementById("cpcLeg").textContent="Charge per case by month";
 }
+/* ---- Trends ---- */
+const TR={metric:"ach",from:1,to:null,mode:"line"};
+const withT=(m,L)=>L.filter(b=>{const r=row(b,m);return r&&!r.partial});
+const METRICS={
+  ach:{label:"Revenue",kind:"money",add:true,val:(m,L)=>{const v=revOf(m,L);return DATA.rows.some(r=>r.m===m&&L.includes(r.b))?v:null}},
+  pct:{label:"% of target",kind:"pct",val:(m,L)=>{const a=agg(m,withT(m,L));return a&&a.mtd?a.ach/a.mtd:null}},
+  growth:{label:"Growth",kind:"delta",val:(m,L)=>{const a=agg(m,withT(m,L));return a&&a.prev?a.ach/a.prev-1:null}},
+  shCH:{label:"Share of CareHub",kind:"pct1",val:(m,L)=>{const c=careHub(m),v=revOf(m,L);return c&&v?v/c:null}},
+  shTot:{label:"Share of total",kind:"pct1",val:(m,L)=>{const t=TOTAL[m-1],v=revOf(m,L);return t&&v?v/t:null}},
+  opd:{label:"Ambulatory charge per case",kind:"egp",val:(m,L)=>{const x=cpcOf(m,L,"opd");return x?x.x:null}},
+  inp:{label:"INP charge per case",kind:"egp",val:(m,L)=>{const x=cpcOf(m,L,"inp");return x?x.x:null}},
+  uInp:{label:"INP utilization",kind:"pct",val:(m,L)=>{const a=agg(m,withT(m,L));return a?pct(a.inpM,a.inpC):null}},
+  uOpd:{label:"Ambulatory utilization",kind:"pct",val:(m,L)=>{const a=agg(m,withT(m,L));return a?pct(a.opdM,a.opdC):null}}
+};
+const fmtK=(k,v)=>v==null||!isFinite(v)?"—":k==="money"?fmtM(v):k==="egp"?fmt(v):k==="pct1"?fpd(v):k==="delta"?(v>=0?"+":"")+Math.round(v*100)+"%":fp(v);
+const mtEl=document.getElementById("trMetric");
+Object.entries(METRICS).forEach(([k,o])=>{const b=document.createElement("button");b.textContent=o.label;b.dataset.k=k;b.onclick=()=>{TR.metric=k;drawTrends();syncURL(false)};mtEl.appendChild(b)});
+document.querySelectorAll("#trMode button").forEach(b=>b.onclick=()=>{TR.mode=b.dataset.v;drawTrends();syncURL(false)});
+["trFrom","trTo"].forEach(id=>document.getElementById(id).onchange=e=>{const v=+e.target.value;if(id==="trFrom")TR.from=v;else TR.to=v;if(TR.from>TR.to){if(id==="trFrom")TR.to=v;else TR.from=v;}drawTrends();syncURL(false)});
+function drawTrends(){
+  const maxM=MONTHS.length; if(TR.to==null||TR.to>maxM) TR.to=maxM; if(TR.from>TR.to) TR.from=1;
+  ["trFrom","trTo"].forEach(id=>{const s=document.getElementById(id),v=id==="trFrom"?TR.from:TR.to;
+    s.innerHTML=MONTHS.map((n,i)=>`<option value="${i+1}"${i+1===v?" selected":""}>${n}</option>`).join("")});
+  mtEl.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===TR.metric));
+  document.querySelectorAll("#trMode button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===TR.mode));
+  const M=METRICS[TR.metric], ms=[];for(let m=TR.from;m<=TR.to;m++) ms.push(m);
+  const labels=ms.map(m=>M_ALL[m-1]), shown=state.b==="All"?BR:[state.b];
+  const o=baseOpts();
+  const isPct=["pct","pct1","delta"].includes(M.kind);
+  o.scales.y.ticks={callback:v=>M.kind==="money"?fmtM(v):M.kind==="egp"?fmt(v):Math.round(v*100)+"%"};
+  if(M.kind!=="delta") o.scales.y.beginAtZero=M.kind!=="egp";
+  o.plugins.tooltip.callbacks.label=c=>`${c.dataset.label}: ${fmtK(M.kind,c.raw)}`;
+  o.onClick=(e,el)=>{ if(el.length){state.m=ms[el[0].index];render();} };
+  const bar=TR.mode==="bar";
+  const ds=shown.map(b=>({type:bar?"bar":"line",label:b,data:ms.map(m=>M.val(m,[b])),borderColor:css(BVAR[b]),backgroundColor:css(BVAR[b])+(bar?"":""),borderWidth:2.5,
+    pointRadius:ms.map(m=>m===state.m?5:3),tension:.25,spanGaps:false,borderRadius:3,maxBarThickness:28,stack:bar&&M.add?"s":undefined}));
+  if(state.b==="All"&&!(bar&&M.add)) ds.push({type:"line",label:"All branches",data:ms.map(m=>M.val(m,BR)),borderColor:css("--ink"),backgroundColor:css("--ink"),borderDash:[6,4],borderWidth:2,pointRadius:0,tension:.25});
+  if(TR.metric==="ach"){ ds.push({type:"line",label:"MTD target",data:ms.map(m=>{const a=agg(m,withT(m,shown));return a?a.mtd:null}),borderColor:css("--muted"),backgroundColor:css("--muted"),borderDash:[2,3],borderWidth:2,pointRadius:0,stepped:"middle"}); }
+  if(TR.metric==="pct") ds.push({type:"line",label:"100% of target",data:ms.map(()=>1),borderColor:css("--good"),backgroundColor:css("--good"),borderDash:[2,3],borderWidth:1.5,pointRadius:0});
+  if(bar&&M.add){o.scales.x.stacked=true;o.scales.y.stacked=true;}
+  mk("cYear",{data:{labels,datasets:ds},options:o});
+  document.getElementById("trLeg").innerHTML=ds.map(d=>`<span><span class="dot" style="background:${d.borderColor}"></span>${d.label}</span>`).join("");
+  const rangeTxt=`${MFULL[TR.from-1]} to ${MFULL[TR.to-1]}`;
+  document.getElementById("trHint").textContent=`${M.label} for ${viewName()==="Pharmacies"?"all branches":viewName()}, ${rangeTxt}. Tap a month to open it.`;
+
+  /* year-to-date summary for the range */
+  const L=shown; let ach=0,tgt=0,mtd=0,rev=0,ch=0,best=null,worst=null;
+  ms.forEach(m=>{const a=agg(m,withT(m,L)); if(a){ach+=a.ach;tgt+=revOf(m,L);mtd+=a.mtd||0;const p=a.mtd?a.ach/a.mtd:null;
+      if(p!=null){if(!best||p>best[1])best=[m,p];if(!worst||p<worst[1])worst=[m,p];}}
+    const v=revOf(m,L), c=careHub(m); if(c!=null&&v){rev+=v;ch+=c;} });
+  const nm=ms.filter(m=>agg(m,withT(m,L))).length;
+  document.getElementById("ytdTitle").textContent=TR.from===1&&TR.to===maxM?"Year to date":rangeTxt;
+  document.getElementById("ytdNote").textContent=ms.some(isPartial)?`Includes ${MFULL[ms.find(isPartial)-1]} to date`:"";
+  const tiles=[["Revenue",fmtM(tgt),`${nm} month${nm===1?"":"s"} · ${fmtM(nm?tgt/nm:0)} a month`],
+    ["Against MTD target",`<span class="${cls(mtd?ach/mtd:null)}">${fp(mtd?ach/mtd:null)}</span>`,`Target ${fmtM(mtd)}`],
+    ["Best month",best?`${M_ALL[best[0]-1]} · <span class="${cls(best[1])}">${fp(best[1])}</span>`:"—","Highest % of target"],
+    ["Weakest month",worst?`${M_ALL[worst[0]-1]} · <span class="${cls(worst[1])}">${fp(worst[1])}</span>`:"—","Lowest % of target"],
+    ["Share of CareHub",fpd(ch?rev/ch:null),`CareHub ${fmtM(ch)}`],
+    ["Share of total",fpd(ch?rev/(ch+fpRevRange(ms)):null),"Total revenue in the range"],
+    ["Ambulatory charge per case",fmt(rangeCpc(ms,L,"opd")),"Range average"],
+    ["INP charge per case",fmt(rangeCpc(ms,L,"inp")),"Range average"]];
+  document.getElementById("ytd").innerHTML=tiles.map(([a,b,c])=>`<div class="kpi"><dt>${a}</dt><dd>${b}<div class="note">${c}</div></dd></div>`).join("");
+
+  /* heat table */
+  const rowsH=[...shown.map(b=>[b,[b]]),...(state.b==="All"?[["All branches",BR]]:[])];
+  const vals=rowsH.map(([,L2])=>ms.map(m=>M.val(m,L2)));
+  const colour=(v,i)=>{ if(v==null) return "";
+    if(M.kind==="pct"&&TR.metric==="pct") return v>=1?"var(--good)":v>=.8?"var(--warn)":"var(--bad)";
+    if(M.kind==="delta") return v>=0?"var(--good)":"var(--bad)";
+    const all=vals[i].filter(x=>x!=null), lo=Math.min(...all), hi=Math.max(...all);
+    return `color-mix(in srgb,var(--orange) ${Math.round(12+ (hi>lo?(v-lo)/(hi-lo):.5)*55)}%,transparent)`; };
+  const strong=(TR.metric==="pct"||M.kind==="delta");
+  let h=`<thead><tr><th></th>${ms.map(m=>`<th>${M_ALL[m-1]}</th>`).join("")}</tr></thead><tbody>`;
+  rowsH.forEach(([name],i)=>{h+=`<tr${name==="All branches"?' class="tot"':''}><td>${name==="All branches"?name:`<span class="dot" style="background:var(${BVAR[name]})"></span>${name}`}</td>`+
+    vals[i].map((v,j)=>v==null?`<td class="na">—</td>`:`<td class="c${ms[j]===state.m?" sel":""}" data-m="${ms[j]}" style="${strong?`color:${colour(v,i)};background:color-mix(in srgb,${colour(v,i)} 14%,transparent)`:`background:${colour(v,i)}`}">${fmtK(M.kind,v)}</td>`).join("")+`</tr>`});
+  const el=document.getElementById("heat"); el.innerHTML=h+"</tbody>";
+  el.querySelectorAll("td.c").forEach(td=>td.onclick=()=>{state.m=+td.dataset.m;render()});
+  document.getElementById("heatHint").textContent=strong?"Green is on or above target or growing; amber and red are below.":"Darker cells are higher values for that row. Tap a cell to open the month.";
+}
+function fpRevRange(ms){return ms.reduce((s,m)=>s+(careHub(m)!=null?fpRev(m):0),0)}
+function rangeCpc(ms,L,k){let v=0,c=0;ms.forEach(m=>{const rs=DATA.rows.filter(r=>r.m===m&&L.includes(r.b)&&!r.partial&&r[k+"V"]!=null&&r[k+"P"]);rs.forEach(r=>{v+=r[k+"V"];c+=r[k+"P"]})});return c?v/c:null}
+
 function drawShare(){
   const L=viewList(), n=viewName(), ms=MONTHS.map((_,i)=>i+1);
   document.getElementById("sHint").textContent=`${n} revenue from the branch reports. CareHub is total revenue minus the pharmacies. Tap a month to select it.`;
@@ -487,10 +615,10 @@ function drawConv(){
 }
 function drawTable(){
   const m=state.m, list=branchesIn(m);
-  document.getElementById("tHint").textContent=`${MFULL[m-1]} by branch. Achievement % is against the month-to-date target.`;
+  document.getElementById("tHint").textContent=`${MFULL[m-1]} by branch. % of target is against the month-to-date target.`;
   const t=document.getElementById("tbl");
   if(!list.length){t.innerHTML="";return}
-  const head=`<thead><tr><th>Branch</th><th>Target</th><th>MTD target</th><th>Achievement</th><th>Ach. %</th><th>Growth</th><th>Medicine</th><th>Supplies</th><th>Inpatient util.</th><th>Ambulatory util.</th><th>Pharmacy requests</th></tr></thead>`;
+  const head=`<thead><tr><th>Branch</th><th>Target</th><th>MTD target</th><th>Revenue</th><th>% of target</th><th>Growth</th><th>Medicine</th><th>Supplies</th><th>Inpatient util.</th><th>Ambulatory util.</th><th>Pharmacy requests</th></tr></thead>`;
   const line=(name,A,isTot)=>{const p=pct(A.ach,A.mtd),g=A.prev?A.ach/A.prev-1:null;
     return `<tr${!isTot&&state.b!=="All"&&state.b!==name?' style="opacity:.45"':''}><td>${isTot?"Total":`<span class="dot" style="background:var(${BVAR[name]})"></span>${name}`}</td><td>${fmt(A.target)}</td><td>${fmt(A.mtd)}</td><td>${fmt(A.ach)}</td>
     <td class="${cls(p)}">${fp(p)}<span class="mini"><i style="width:${Math.min(p,1)*100}%"></i></span></td>
@@ -553,10 +681,11 @@ async function getTabCSV(name){
 function fromSheet(br,tot){
   const rows=[];
   br.forEach(x=>{
-    const m=toNum(x[COLS.m]), b=(x[COLS.b]||"").trim(), ach=toNum(x[COLS.ach]);
+    const m=toNum(x[COLS.m]), b=(x[COLS.b]||"").trim(), ach=toNum(x[COLS.ach]!=null&&x[COLS.ach]!==""?x[COLS.ach]:x["Revenue"]);
     if(!m||!BR.includes(b)||ach==null) return;
     const r={b,m};
-    Object.entries(COLS).forEach(([k,h])=>{ if(k!=="b"&&k!=="m") r[k]=toNum(x[h]); });
+    const pick=h=>{ for(const n of [h,h.replace(/^OPD/,"Ambulatory"),h.replace(/^Achievement$/,"Revenue")]) if(x[n]!=null&&x[n]!=="") return x[n]; return null; };
+    Object.entries(COLS).forEach(([k,h])=>{ if(k!=="b"&&k!=="m") r[k]=toNum(pick(h)); });
     const wk=[1,2,3,4].map(i=>toNum(x["Week "+i])); r.wk=wk.some(v=>v!=null)?wk.map(v=>v||0):null;
     r.pk=PKC.map(([c,v])=>[toNum(x[c])||0,toNum(x[v])||0]);
     if(r.target==null&&r.mtd==null) r.partial=true;
@@ -574,33 +703,85 @@ async function loadSheet(manual){
     const [br,tot]=await Promise.all([getTab("Branch data"),getTab("Total revenue")]);
     const {rows,total}=fromSheet(br,tot);
     if(!rows.length) throw new Error("No rows found");
-    const lastBefore=Math.max(...DATA.rows.map(r=>r.m));
-    DATA={...DATA,rows,excel:{total}}; TOTAL=total;
-    const maxM=Math.max(...rows.map(r=>r.m));
-    MONTHS=M_ALL.slice(0,maxM);
-    if(state.m>maxM||state.m===lastBefore) state.m=maxM;
-    buildMonths(); render();
-    const t=new Date(); st.className="sync live"; st.textContent=`Live · ${t.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}`;
+    applyData(rows,total);
+    try{localStorage.setItem(CACHE_KEY,JSON.stringify({rows,total,t:Date.now()}))}catch(e){}
+    const t=new Date(); st.className="sync live"; st.textContent=`Live · ${t.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}`; st.title="";
   }catch(e){
-    st.className="sync err"; st.textContent=manual?"Couldn’t reach the sheet":"Saved copy";
+    st.className="sync err"; st.textContent=manual?"Couldn’t reach the sheet":(cachedAt?`Saved copy · ${cachedAt}`:"Saved copy");
     st.title="Showing the copy saved in this file. Check the internet connection and that the sheet is shared as Anyone with the link.";
     console.warn("Sheet load failed:",e);
   }finally{ btn.classList.remove("spin"); btn.disabled=false; }
 }
 
-function showTab(t){
+/* ---- Position, history and refresh ---- */
+const CACHE_KEY="fp-dashboard-data-v1"; let cachedAt="";
+const slug=b=>b.toLowerCase().replace(/\s+/g,"-");
+function readURL(){
+  const h=location.hash.replace(/^#/,""), i=h.indexOf("?"), tab=i<0?h:h.slice(0,i), p=new URLSearchParams(i<0?"":h.slice(i+1));
+  state.tab=TABS.includes(tab)?tab:"overview";
+  const m=+p.get("m"); if(m>=1&&m<=12){state.m=m;userPickedMonth=true;}
+  const b=p.get("b"); state.b=BR.find(x=>slug(x)===b)||"All";
+  if(METRICS[p.get("metric")]) TR.metric=p.get("metric");
+  const f=+p.get("from"),to=+p.get("to"); if(f>=1&&f<=12) TR.from=f; if(to>=1&&to<=12) TR.to=to;
+  if(["line","bar"].includes(p.get("mode"))) TR.mode=p.get("mode");
+}
+function urlFor(){
+  const p=new URLSearchParams(); p.set("m",state.m); if(state.b!=="All") p.set("b",slug(state.b));
+  if(state.tab==="trends"){p.set("metric",TR.metric);p.set("from",TR.from);if(TR.to)p.set("to",TR.to);p.set("mode",TR.mode);}
+  return "#"+state.tab+"?"+p.toString();
+}
+function syncURL(push){ const u=urlFor(); if(u===location.hash) return; try{ push?history.pushState(null,"",u):history.replaceState(null,"",u); }catch(e){} }
+const scrollKey=t=>"fp-scroll-"+t;
+const saveScroll=()=>{try{sessionStorage.setItem(scrollKey(state.tab),String(Math.round(window.scrollY)))}catch(e){}};
+const savedScroll=t=>{try{return +sessionStorage.getItem(scrollKey(t))||0}catch(e){return 0}};
+function keepScroll(fn){ const y=window.scrollY; fn(); window.scrollTo(0,y); }
+function applyData(rows,total){
+  const prev={DATA,TOTAL,MONTHS,m:state.m};
+  try{
+    DATA={...DATA,rows,excel:{total}}; TOTAL=total;
+    const maxM=Math.max(...rows.map(r=>r.m)), grew=maxM!==MONTHS.length;
+    MONTHS=M_ALL.slice(0,maxM);
+    if(!userPickedMonth||state.m>maxM) state.m=maxM;
+    if(TR.to==null||TR.to>maxM) TR.to=maxM;
+    keepScroll(()=>{ if(grew) buildMonths(); render(); });
+  }catch(e){
+    DATA=prev.DATA; TOTAL=prev.TOTAL; MONTHS=prev.MONTHS; state.m=prev.m;
+    keepScroll(()=>{ buildMonths(); render(); }); throw e;
+  }
+}
+function showTab(t,opts={}){
+  if(t!==state.tab) saveScroll();
   state.tab=t;
   document.querySelectorAll(".screen").forEach(x=>x.hidden=x.id!=="s-"+t);
   document.querySelectorAll(".nav a").forEach(a=>a.setAttribute("aria-current",a.dataset.t===t?"page":"false"));
-  try{history.replaceState(null,"","#"+t)}catch(e){}
-  requestAnimationFrame(()=>Object.values(charts).forEach(c=>c.resize()));
-  window.scrollTo({top:0});
+  if(t==="trends") drawTrends();
+  if(!opts.fromHistory) syncURL(!!opts.push);
+  Object.values(charts).forEach(c=>c.resize());
+  window.scrollTo(0,opts.restore?savedScroll(t):0);
 }
-document.querySelectorAll(".nav a").forEach(a=>a.onclick=e=>{e.preventDefault();showTab(a.dataset.t)});
+document.querySelectorAll(".nav a").forEach(a=>a.onclick=e=>{e.preventDefault(); if(a.dataset.t!==state.tab) showTab(a.dataset.t,{push:true});});
 document.getElementById("refreshBtn").onclick=()=>loadSheet(true);
-buildMonths(); render(); showTab(state.tab); loadSheet(false);
-try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change",render); }catch(e){}
-new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+window.addEventListener("popstate",()=>{ saveScroll(); readURL(); render(); showTab(state.tab,{fromHistory:true,restore:true}); });
+let scrollTick=false;
+window.addEventListener("scroll",()=>{ if(scrollTick) return; scrollTick=true; requestAnimationFrame(()=>{saveScroll();scrollTick=false;}); },{passive:true});
+window.addEventListener("pagehide",saveScroll);
+window.addEventListener("pageshow",e=>{ if(e.persisted) loadSheet(false); });
+try{ history.scrollRestoration="manual"; }catch(e){}
+
+/* start: last good copy from this browser first, then the live sheet */
+readURL();
+try{ const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
+  if(c&&Array.isArray(c.rows)&&c.rows.length){ DATA={...DATA,rows:c.rows,excel:{total:c.total}}; TOTAL=c.total;
+    MONTHS=M_ALL.slice(0,Math.max(...c.rows.map(r=>r.m)));
+    cachedAt=new Date(c.t).toLocaleString([], {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+    document.getElementById("sync").textContent=`Saved copy · ${cachedAt}`; } }catch(e){}
+if(!userPickedMonth||state.m>MONTHS.length) state.m=MONTHS.length;
+if(TR.to==null||TR.to>MONTHS.length) TR.to=MONTHS.length;
+buildMonths(); render(); showTab(state.tab,{restore:true}); firstPaint=false;
+requestAnimationFrame(()=>window.scrollTo(0,savedScroll(state.tab)));
+loadSheet(false);
+try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>keepScroll(render)); }catch(e){}
+new MutationObserver(()=>keepScroll(render)).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
 </script>
 </body>
 </html>
