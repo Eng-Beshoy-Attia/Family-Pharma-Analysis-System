@@ -324,16 +324,23 @@ const fp=x=>x==null?"—":Math.round(x*100)+"%";
 const cls=x=>x==null?"":x>=1?"good":x>=.8?"warn":"bad";
 const row=(b,m)=>DATA.rows.find(r=>r.b===b&&r.m===m);
 const branchesIn=m=>BR.filter(b=>{const r=row(b,m);return r&&!r.partial});
-/* Reporting month m runs 26 of month m-1 to 25 of month m.
-   Days elapsed come from MTD target / target (the reports prorate the target over the calendar days of month m). */
+/* Reporting month m runs 26 of month m-1 to 25 of month m. */
 const dim=m=>new Date(2026,m,0).getDate();          // calendar days in month m (m=0 is Dec 2025)
 const periodLen=m=>dim(m-1);                         // days from 26 of m-1 to 25 of m
+/* MTD is worked out from today - 2 days. The reporting month that contains that day is in progress;
+   every month before it is complete. MTD target = target / days in the period x days elapsed. */
+const REF=(()=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-2);return d})();
+const CUR=(()=>{const y=REF.getFullYear(),mo=REF.getMonth()+1+(REF.getDate()>=26?1:0);return (y-2026)*12+mo})(); // reporting month index for 2026
 function elapsed(m){
-  const rs=DATA.rows.filter(r=>r.m===m&&r.target&&r.mtd!=null);
-  const P=periodLen(m); if(!rs.length) return P;
-  const ratio=rs.reduce((s,r)=>s+r.mtd,0)/rs.reduce((s,r)=>s+r.target,0);
-  if(ratio>=0.9999) return P;
-  return Math.max(1,Math.min(P,Math.round(ratio*dim(m))));
+  const P=periodLen(m);
+  if(m<CUR) return P;
+  if(m>CUR) return 0;
+  const start=new Date(2026,m-2,26,12);
+  return Math.max(1,Math.min(P,Math.round((REF-start)/864e5)+1));
+}
+function normalizeMTD(rows){
+  rows.forEach(r=>{ if(r.target==null){r.mtd=null;return;} const P=periodLen(r.m),E=elapsed(r.m); r.mtd=E>=P?r.target:r.target*E/P; });
+  return rows;
 }
 const isPartial=m=>elapsed(m)<periodLen(m);
 const cutOf=m=>{const d=new Date(2026,m-2,26+elapsed(m)-1);return `${d.getDate()} ${M_ALL[d.getMonth()]}`};
@@ -738,7 +745,7 @@ function keepScroll(fn){ const y=window.scrollY; fn(); window.scrollTo(0,y); }
 function applyData(rows,total){
   const prev={DATA,TOTAL,MONTHS,m:state.m};
   try{
-    DATA={...DATA,rows,excel:{total}}; TOTAL=total;
+    normalizeMTD(rows); DATA={...DATA,rows,excel:{total}}; TOTAL=total;
     const maxM=Math.max(...rows.map(r=>r.m)), grew=maxM!==MONTHS.length;
     MONTHS=M_ALL.slice(0,maxM);
     if(!userPickedMonth||state.m>maxM) state.m=maxM;
@@ -771,12 +778,13 @@ try{ history.scrollRestoration="manual"; }catch(e){}
 /* start: last good copy from this browser first, then the live sheet */
 readURL();
 try{ const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
-  if(c&&Array.isArray(c.rows)&&c.rows.length){ DATA={...DATA,rows:c.rows,excel:{total:c.total}}; TOTAL=c.total;
+  if(c&&Array.isArray(c.rows)&&c.rows.length){ normalizeMTD(c.rows); DATA={...DATA,rows:c.rows,excel:{total:c.total}}; TOTAL=c.total;
     MONTHS=M_ALL.slice(0,Math.max(...c.rows.map(r=>r.m)));
     cachedAt=new Date(c.t).toLocaleString([], {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
     document.getElementById("sync").textContent=`Saved copy · ${cachedAt}`; } }catch(e){}
 if(!userPickedMonth||state.m>MONTHS.length) state.m=MONTHS.length;
 if(TR.to==null||TR.to>MONTHS.length) TR.to=MONTHS.length;
+normalizeMTD(DATA.rows);
 buildMonths(); render(); showTab(state.tab,{restore:true}); firstPaint=false;
 requestAnimationFrame(()=>window.scrollTo(0,savedScroll(state.tab)));
 loadSheet(false);
